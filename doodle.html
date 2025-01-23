@@ -6,13 +6,16 @@
     <title>Mouvement</title>
 </head>
 <body>
-    <canvas id="my_canvas" width="110" height="110" style="border: 1px solid red"></canvas>
+    <div style="display: flex; align-items: center; justify-content: center; height: 100vh;">
+        <canvas id="my_canvas" width="210" height="410" style="border: 1px solid red"></canvas>
+    </div>
 
     <script>
         class Model {
             static GRAVITY    = 20;
             static JUMP_FORCE = 500;
             static SPEED      = 200;
+            
 
             constructor() {
                 this._direction = 0;                
@@ -34,9 +37,20 @@
                 this._position.y += this._gravitySpeed / fps;
                 this._position.x += this._direction * Model.SPEED / fps;
 
-                if (this._position.y > 100) {
+                if (this._position.y > 400) {
                     this._Jump();
                 }
+                
+                /**
+                 * Condition qui permet de faire boucler le carré.
+                 * Si la position x est supérieure à 200, on la remet à 0.
+                 * Si la position x est inférieure à 0, on la remet à 200.
+                 */
+                if (this._position.x > 200) {
+                    this._position.x = 0;
+                } else if (this._position.x < 0) {
+                    this._position.x = 200;
+                }  
 
                 this.b_Display(this._position);
             }
@@ -99,16 +113,20 @@
                 let y = position.y;
                 
                 this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+                
+                this.ctx.fillStyle = 'red';
+                this.ctx.fillRect(0, 0, this._canvas.width, this._canvas.height / 2);
+
 
                 // Dessiner les lignes.
-                this.ctx.beginPath(); // Nouveau tracé.
-                this.ctx.moveTo(100, 0); // Déplacement du crayon en (100, 0).
-                this.ctx.lineTo(100, 100); // Dessiner la ligne en (150, 100).
-                this.ctx.stroke(); // Afficher la ligne.
-                this.ctx.beginPath(); // Nouveau tracé.
-                this.ctx.moveTo(0, 100); // Déplacement du crayon en (100, 0).
-                this.ctx.lineTo(100, 100); // Dessiner la ligne en (150, 100).
-                this.ctx.stroke(); // Afficher la ligne.
+                // this.ctx.beginPath(); // Nouveau tracé.
+                // this.ctx.moveTo(100, 0); // Déplacement du crayon en (100, 0).
+                // this.ctx.lineTo(100, 100); // Dessiner la ligne en (150, 100).
+                // this.ctx.stroke(); // Afficher la ligne.
+                // this.ctx.beginPath(); // Nouveau tracé.
+                // this.ctx.moveTo(0, 100); // Déplacement du crayon en (100, 0).
+                // this.ctx.lineTo(100, 100); // Dessiner la ligne en (150, 100).
+                // this.ctx.stroke(); // Afficher la ligne.
                 
                 // Dessiner un rectangle plein.
                 this.ctx.fillRect(x, y, 10, 10);
