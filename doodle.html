@@ -44,7 +44,8 @@
             static SPEED      = 200;
             static PLATFORM_WIDTH = 50;
             static PLATFORM_HEIGHT = 10;
-            static PLATFORM_COUNT = 5;
+            static PLATFORM_COUNT = 10;
+            static SLIDING_LIMIT = 350;
 
             constructor() {
                 this._direction = 0;                
@@ -71,6 +72,7 @@
                     this._Jump();
                 }
 
+                this._sliding();
                 this._checkPlatformCollision();
                 this.b_Display(this._position, this._platforms);
             }
@@ -101,6 +103,16 @@
                 }
             }
 
+            _sliding() {
+                if (this._position.y < 200) {
+                    let sliding = 200 - this._position.y;
+                    this._position.y = 200;
+                    for (let platform of this._platforms) {
+                        platform.position.y += sliding;
+                    }
+                }
+            }
+
             setDirection(value) {
                 this._direction = value;
             }
@@ -125,6 +137,13 @@
                 let y = position.y;
                 
                 this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+                
+                // Dessiner une ligne horizental de gauche à droite où y = 50% de la hauteur du canvas
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, 0.5 * this._canvas.height);
+                this.ctx.lineTo(this._canvas.width, 0.5 * this._canvas.height);
+                this.ctx.stroke();
+
 
                 // Dessiner les plateformes
                 for (let platform of platforms) {
