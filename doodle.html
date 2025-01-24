@@ -6,6 +6,10 @@
     <title>Doodle Jump</title>
 </head>
 <body>
+    <p>Score =
+        <span id="score">0</span>
+    </p>
+
     <div style="display: flex; align-items: center; justify-content: center; height: 100vh;">
         <canvas id="my_canvas" width="210" height="410" style="border: 1px solid red"></canvas>
     </div>
@@ -48,6 +52,7 @@
             static SLIDING_LIMIT = 350;
 
             constructor() {
+                this._score = 0;
                 this._direction = 0;                
                 this._gravitySpeed = 0;
                 this._position = {x: 100, y:200};
@@ -71,10 +76,16 @@
                 if (this._position.y > 400) {
                     this._Jump();
                 }
+                
+                // if (this._position.y > this._score) {
+                //     this._score = this._position.y;
+                //     console.log("Score = ", this._score);
+                // }
 
                 this._sliding();
                 this._checkPlatformCollision();
                 this._generateNewPlatforms();
+                this._checkDeath();
                 this.b_Display(this._position, this._platforms);
             }
 
@@ -113,9 +124,20 @@
                 }
             }
 
+            _checkDeath() {
+                if (this._position.y >= 400) {
+                    this._position.y = 200;
+                    this._score = 0;
+                    document.getElementById('score').innerText = this._score;
+                }
+            }
+
             _sliding() {
                 if (this._position.y < 200) {
                     let sliding = 200 - this._position.y;
+                    this._score += sliding;
+                    // mettre à jour le score dans le DOM
+                    document.getElementById('score').innerText = this._score;
                     this._position.y = 200;
                     for (let platform of this._platforms) {
                         platform.position.y += sliding;
