@@ -3,27 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mouvement</title>
+    <title>Doodle Jump</title>
 </head>
 <body>
-    <canvas id="my_canvas" width="110" height="110" style="border: 1px solid red"></canvas>
+    <p>Score =
+        <span id="score">0</span>
+        <button id="play" onclick="play()">Jouer</button>
+    </p>
+
+    <div style="display: flex; align-items: center; justify-content: center; height: 100vh;">
+        <canvas id="my_canvas" width="210" height="410" style="border: 1px solid red"></canvas>
+    </div>
 
     <script>
+        class GameObject {
+            constructor(posX, posY, weight, height) {
+                this._position = {x: posX, y: posY};
+                this._weight = weight;
+                this._height = height;
+            }
+
+            get position() { return this._position; }
+            set position(value) { this._position = value; }
+
+            get weight() { return this._weight; }
+            set weight(value) { this._weight = value; }
+
+            get height() { return this._height; }
+            set height(value) { this._height = value; }
+        }
+
+        class Platform extends GameObject {
+            constructor(posX, posY, weight, height, color) {
+                super(posX, posY, weight, height);
+                this._color = color;
+                this._color === 'blue' ? this._direction = 1 : this._direction = 0;
+
+            }
+
+            get color() { return this._color; }
+            set color(value) { this._color = value; }
+
+            update() {
+                if (this._color === 'blue') {
+                    this._position.x += this._direction; // Speed of sliding
+                    console.log(this._position.x, this._direction);
+                    if (this._position.x <= 0 || this._position.x + this._weight >= 210) {
+                        this._direction *= -1; // Change direction
+                    }
+                }
+            }
+        }
+
         class Model {
             static GRAVITY    = 20;
-            static JUMP_FORCE = 500;
+            static JUMP_FORCE = 600;
             static SPEED      = 200;
+            static PLATFORM_WIDTH = 50;
+            static PLATFORM_HEIGHT = 10;
+            static PLATFORM_COUNT = 100;
+            static SLIDING_LIMIT = 350;
 
             constructor() {
+                this._isGameOver = false;
+                this._score = 0;
                 this._direction = 0;                
                 this._gravitySpeed = 0;
-                this._position = {x: 0, y:0};
+                this._position = {x: 100, y:200};
+                // this._platforms = this._generatePlatforms();
             }
 
             get position() { return this._position; }
 
             get direction() { return this._direction; }
-            set direction(value) { return this._direction = value; }
+            set direction(value) { this._direction = value; }
             
             BindDisplay(callback) {
                 this.b_Display = callback;
@@ -34,15 +87,135 @@
                 this._position.y += this._gravitySpeed / fps;
                 this._position.x += this._direction * Model.SPEED / fps;
 
-                if (this._position.y > 100) {
+                if (this._position.y > 400) {
                     this._Jump();
                 }
-
-                this.b_Display(this._position);
+                
+                /**
+                 * Condition qui permet de faire boucler le carré.
+                 * Si la position x est supérieure à 200, on la remet à 0.
+                 * Si la position x est inférieure à 0, on la remet à 200.
+                 */
+                 if (this._position.x > 200) {
+                    this._position.x = 0;
+                } else if (this._position.x < 0) {
+                    this._position.x = 200;
+                }  
+                // if (this._position.y > this._score) {
+                //     this._score = this._position.y;
+                //     console.log("Score = ", this._score);
+                // }
+                this._generateNewPlatforms();    
+                this._updatePlatforms();
+                this._sliding();
+                this._checkPlatformCollision();
+            
+                this._checkDeath();
+                this.b_Display(this._position, this._platforms);
             }
 
             _Jump() {
                 this._gravitySpeed = -Model.JUMP_FORCE;
+            }
+
+            _generatePlatforms() {
+                let platforms = [];
+                const initialCount = 10; // Nombre initial de plateformes
+                const maxPlatforms = Math.max(2, initialCount - Math.floor(this._score / 100)); // Diminue avec le score, minimum 2
+                for (let i = 0; i < maxPlatforms; i++) {
+                    let posX = Math.random() * (210 - Model.PLATFORM_WIDTH);
+                    let posY = i * (400 / maxPlatforms); // Espacement vertical
+                    platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, 'green'));
+                }
+                return platforms;
+            }
+
+
+            _updatePlatforms() {
+                for (let platform of this._platforms) {
+                    platform.update();
+                }
+            }
+
+            _generateNewPlatforms() {
+                // Au début, s'assurer qu'il y ait suffisamment de plateformes
+                if (this._platforms.length < 10) {
+                    while (this._platforms.length < 10) {
+                        let posX = Math.random() * (210 - Model.PLATFORM_WIDTH);
+                        let posY = Math.random() * 300; // Les plateformes sont réparties sur une hauteur initiale
+                        let color = Math.random() < 0.5 ? 'green' : Math.random() < 0.5 ? 'blue' : 'gray';
+                        this._platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, color));
+                    }
+                    return;
+                }
+
+                const highestPlatform = this._platforms.reduce((max, platform) => platform.position.y < max.position.y ? platform : max, this._platforms[0]);
+
+                // Générer de nouvelles plateformes si nécessaire
+                if (highestPlatform.position.y > 50) {
+                    let probability = this._calculatePlatformProbability();
+                    if (Math.random() < probability) {
+                        let color = Math.random() < 0.5 ? 'green' : Math.random() < 0.5 ? 'blue' : 'gray';
+                        let posX = Math.random() * (210 - Model.PLATFORM_WIDTH);
+                        let posY = highestPlatform.position.y - 100;
+                        this._platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, color));
+                    }
+                }
+            }
+
+
+            _calculatePlatformProbability() {
+                // Probabilité de génération de plateforme en fonction du score
+                // Le nombre initial de plateformes est élevé, mais diminue plus lentement avec le score
+                let baseProbability = 0.85; // Probabilité de base (élevée au début)
+                let scoreFactor = this._score / 2000; // Facteur de réduction basé sur le score (ralenti la réduction)
+                return Math.max(0.3, baseProbability - scoreFactor); // Probabilité minimale plus élevée pour éviter des lacunes
+            }
+
+            _checkPlatformCollision() {
+                for (let i = this._platforms.length - 1; i >= 0; i--) {
+                    let platform = this._platforms[i];
+                    if (this._position.x < platform.position.x + platform.weight &&
+                        this._position.x + 10 > platform.position.x &&
+                        this._position.y < platform.position.y + platform.height &&
+                        this._position.y + 10 > platform.position.y &&
+                        this._gravitySpeed > 0) {
+                        this._Jump();
+                        if (platform.color === 'gray') {
+                            this._platforms.splice(i, 1); // Remove gray platform
+                        }
+                    }
+                }
+            }
+
+            _checkDeath() {
+                if (this._position.y >= 400) {
+                    this._isGameOver = true;
+                    this._position.y = 200;
+                    this._position.x = 100;
+                    this._score = 0;
+                    // supprimer tous les plateformes
+                    this._platforms = [];
+
+                    document.getElementById('score').innerText = this._score;
+                }
+            }
+
+            _sliding() {
+                if (this._position.y < 200) {
+                    let sliding = 200 - this._position.y;
+                    this._score += sliding;
+                    // mettre à jour le score dans le DOM
+                    document.getElementById('score').innerText = this._score;
+                    this._position.y = 200;
+                    for (let platform of this._platforms) {
+                        platform.position.y += sliding;
+                    }
+                }
+            }
+
+            setDirection(value) {
+                this._direction = value;
             }
         }
 
@@ -58,6 +231,30 @@
 
             BindSetDirection(callback) {
                 this.b_SetDirection = callback;
+            }
+
+            Display(position, platforms) {
+                let x = position.x;
+                let y = position.y;
+                
+                this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+                
+                // Dessiner une ligne horizental de gauche à droite où y = 50% de la hauteur du canvas
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, 0.5 * this._canvas.height);
+                this.ctx.lineTo(this._canvas.width, 0.5 * this._canvas.height);
+                this.ctx.stroke();
+
+
+                // Dessiner les plateformes
+                for (let platform of platforms) {
+                    this.ctx.fillStyle = platform.color;
+                    this.ctx.fillRect(platform.position.x, platform.position.y, platform.weight, platform.height);
+                }
+
+                // Dessiner le doodle
+                this.ctx.fillStyle = 'blue';
+                this.ctx.fillRect(x, y, 10, 10);
             }
 
             Events() {
@@ -77,89 +274,53 @@
                 });
 
                 document.addEventListener('keyup', (evt) => {
-                    switch (evt.key) {
-                        case 'ArrowLeft': // Move left.
-                            if (!this._hold_right) {
-                                this.b_SetDirection(0);
-                            }
-                            this._hold_left = false;
-                            break;
-                        case 'ArrowRight': // Move right.
-                            if (!this._hold_left) {
-                                this.b_SetDirection(0);
-                            }
-                            this._hold_right = false;
-                            break;
+                    if (evt.key == 'ArrowLeft' || evt.key == 'ArrowRight') {
+                        switch (evt.key) {
+                            case 'ArrowLeft': // Stop moving left.
+                                this._hold_left = false;
+                                if (!this._hold_right) this.b_SetDirection(0);
+                                break;
+                            case 'ArrowRight': // Stop moving right.
+                                this._hold_right = false;
+                                if (!this._hold_left) this.b_SetDirection(0);
+                                break;
+                        }
                     }
                 });
-            }
-
-            Display(position) {
-                let x = position.x;
-                let y = position.y;
-                
-                this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-
-                // Dessiner les lignes.
-                this.ctx.beginPath(); // Nouveau tracé.
-                this.ctx.moveTo(100, 0); // Déplacement du crayon en (100, 0).
-                this.ctx.lineTo(100, 100); // Dessiner la ligne en (150, 100).
-                this.ctx.stroke(); // Afficher la ligne.
-                this.ctx.beginPath(); // Nouveau tracé.
-                this.ctx.moveTo(0, 100); // Déplacement du crayon en (100, 0).
-                this.ctx.lineTo(100, 100); // Dessiner la ligne en (150, 100).
-                this.ctx.stroke(); // Afficher la ligne.
-                
-                // Dessiner un rectangle plein.
-                this.ctx.fillRect(x, y, 10, 10);
             }
         }
 
         class Controller {
             constructor(model, view) {
-                this._model = model;
-                this._view = view;
-                
-                this._startTime     = Date.now();
-                this._lag           = 0;
-                this._fps           = 60; // Frame rate.
-                this._frameDuration = 1000 / this._fps; // Avec 60 frame par seconde, la frame va durer 16.7ms.
-
-                this._model.BindDisplay(this.Display.bind(this));
-                this._view.BindSetDirection(this.SetDirection.bind(this));
+                this.model = model;
+                this.view = view;
+                this.model.BindDisplay(this.view.Display.bind(this.view));
+                this.view.BindSetDirection(this.model.setDirection.bind(this.model));
             }
 
-            Display(position) {
-                this._view.Display(position);
-            }
-
-            SetDirection(newDirection) {
-                this._model.direction = newDirection;
-            }
-            
-            Update() {
-                /* Calcul du deltaTime */
-                let currentTime = Date.now();
-                let deltaTime   = currentTime - this._startTime; // La durée entre deux appels (entre 2 frames).
-                
-                this._lag += deltaTime;
-                this._startTime = currentTime;
-
-                /* Mettre à jour la logique si la variable _lag est supérieure ou égale à la durée d'une frame */
-                while (this._lag >= this._frameDuration) {
-                    /* Mise à jour de la logique */
-                    this._model.Move(this._fps);
-                    /* Réduire la variable _lag par la durée d'une frame */
-                    this._lag -= this._frameDuration;
-                }
-                
-                requestAnimationFrame(this.Update.bind(this)); // La fonction de rappel est généralement appelée 60 fois par seconde.
+            Update(fps) {
+                this.model.Move(fps);
             }
         }
 
-        const app = new Controller(new Model(), new View());
-        app.Update();
+        // Initialisation
+        const canvas = document.getElementById('my_canvas');
+        const model = new Model();
+        const view = new View();
+        const controller = new Controller(model, view);
+
+        function gameLoop() {
+            if (model._isGameOver == false) {
+                controller.Update(60);
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function play() {
+            model._platforms = model._generatePlatforms();
+            model._isGameOver = false;
+            gameLoop();
+        }
     </script>
-    
 </body>
 </html>
