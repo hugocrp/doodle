@@ -8,6 +8,7 @@
 <body>
     <p>Score =
         <span id="score">0</span>
+        <button id="play" onclick="play()">Jouer</button>
     </p>
 
     <div style="display: flex; align-items: center; justify-content: center; height: 100vh;">
@@ -36,10 +37,22 @@
             constructor(posX, posY, weight, height, color) {
                 super(posX, posY, weight, height);
                 this._color = color;
+                this._color === 'blue' ? this._direction = 1 : this._direction = 0;
+
             }
 
             get color() { return this._color; }
             set color(value) { this._color = value; }
+
+            update() {
+                if (this._color === 'blue') {
+                    this._position.x += this._direction; // Speed of sliding
+                    console.log(this._position.x, this._direction);
+                    if (this._position.x <= 0 || this._position.x + this._weight >= 210) {
+                        this._direction *= -1; // Change direction
+                    }
+                }
+            }
         }
 
         class Model {
@@ -48,15 +61,16 @@
             static SPEED      = 200;
             static PLATFORM_WIDTH = 50;
             static PLATFORM_HEIGHT = 10;
-            static PLATFORM_COUNT = 10;
+            static PLATFORM_COUNT = 100;
             static SLIDING_LIMIT = 350;
 
             constructor() {
+                this._isGameOver = false;
                 this._score = 0;
                 this._direction = 0;                
                 this._gravitySpeed = 0;
                 this._position = {x: 100, y:200};
-                this._platforms = this._generatePlatforms();
+                // this._platforms = this._generatePlatforms();
             }
 
             get position() { return this._position; }
@@ -77,14 +91,25 @@
                     this._Jump();
                 }
                 
+                /**
+                 * Condition qui permet de faire boucler le carré.
+                 * Si la position x est supérieure à 200, on la remet à 0.
+                 * Si la position x est inférieure à 0, on la remet à 200.
+                 */
+                 if (this._position.x > 200) {
+                    this._position.x = 0;
+                } else if (this._position.x < 0) {
+                    this._position.x = 200;
+                }  
                 // if (this._position.y > this._score) {
                 //     this._score = this._position.y;
                 //     console.log("Score = ", this._score);
                 // }
-
+                this._generateNewPlatforms();    
+                this._updatePlatforms();
                 this._sliding();
                 this._checkPlatformCollision();
-                this._generateNewPlatforms();
+            
                 this._checkDeath();
                 this.b_Display(this._position, this._platforms);
             }
@@ -95,39 +120,83 @@
 
             _generatePlatforms() {
                 let platforms = [];
-                for (let i = 0; i < Model.PLATFORM_COUNT; i++) {
+                const initialCount = 10; // Nombre initial de plateformes
+                const maxPlatforms = Math.max(2, initialCount - Math.floor(this._score / 100)); // Diminue avec le score, minimum 2
+                for (let i = 0; i < maxPlatforms; i++) {
                     let posX = Math.random() * (210 - Model.PLATFORM_WIDTH);
-                    let posY = i * 100;
+                    let posY = i * (400 / maxPlatforms); // Espacement vertical
                     platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, 'green'));
                 }
                 return platforms;
             }
 
-            _generateNewPlatforms() {
-                const highestPlatform = this._platforms.reduce((max, platform) => platform.position.y < max.position.y ? platform : max, this._platforms[0]);
-                if (highestPlatform.position.y > 100) {
-                    let posX = Math.random() * (210 - Model.PLATFORM_WIDTH);
-                    let posY = highestPlatform.position.y - 100;
-                    this._platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, 'green'));
+
+            _updatePlatforms() {
+                for (let platform of this._platforms) {
+                    platform.update();
                 }
             }
 
+            _generateNewPlatforms() {
+                // Au début, s'assurer qu'il y ait suffisamment de plateformes
+                if (this._platforms.length < 10) {
+                    while (this._platforms.length < 10) {
+                        let posX = Math.random() * (210 - Model.PLATFORM_WIDTH);
+                        let posY = Math.random() * 300; // Les plateformes sont réparties sur une hauteur initiale
+                        let color = Math.random() < 0.5 ? 'green' : Math.random() < 0.5 ? 'blue' : 'gray';
+                        this._platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, color));
+                    }
+                    return;
+                }
+
+                const highestPlatform = this._platforms.reduce((max, platform) => platform.position.y < max.position.y ? platform : max, this._platforms[0]);
+
+                // Générer de nouvelles plateformes si nécessaire
+                if (highestPlatform.position.y > 50) {
+                    let probability = this._calculatePlatformProbability();
+                    if (Math.random() < probability) {
+                        let color = Math.random() < 0.5 ? 'green' : Math.random() < 0.5 ? 'blue' : 'gray';
+                        let posX = Math.random() * (210 - Model.PLATFORM_WIDTH);
+                        let posY = highestPlatform.position.y - 100;
+                        this._platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, color));
+                    }
+                }
+            }
+
+
+            _calculatePlatformProbability() {
+                // Probabilité de génération de plateforme en fonction du score
+                // Le nombre initial de plateformes est élevé, mais diminue plus lentement avec le score
+                let baseProbability = 0.85; // Probabilité de base (élevée au début)
+                let scoreFactor = this._score / 2000; // Facteur de réduction basé sur le score (ralenti la réduction)
+                return Math.max(0.3, baseProbability - scoreFactor); // Probabilité minimale plus élevée pour éviter des lacunes
+            }
+
             _checkPlatformCollision() {
-                for (let platform of this._platforms) {
+                for (let i = this._platforms.length - 1; i >= 0; i--) {
+                    let platform = this._platforms[i];
                     if (this._position.x < platform.position.x + platform.weight &&
                         this._position.x + 10 > platform.position.x &&
                         this._position.y < platform.position.y + platform.height &&
                         this._position.y + 10 > platform.position.y &&
                         this._gravitySpeed > 0) {
                         this._Jump();
+                        if (platform.color === 'gray') {
+                            this._platforms.splice(i, 1); // Remove gray platform
+                        }
                     }
                 }
             }
 
             _checkDeath() {
                 if (this._position.y >= 400) {
+                    this._isGameOver = true;
                     this._position.y = 200;
+                    this._position.x = 100;
                     this._score = 0;
+                    // supprimer tous les plateformes
+                    this._platforms = [];
+
                     document.getElementById('score').innerText = this._score;
                 }
             }
@@ -241,11 +310,17 @@
         const controller = new Controller(model, view);
 
         function gameLoop() {
-            controller.Update(60);
-            requestAnimationFrame(gameLoop);
+            if (model._isGameOver == false) {
+                controller.Update(60);
+                requestAnimationFrame(gameLoop);
+            }
         }
 
-        gameLoop();
+        function play() {
+            model._platforms = model._generatePlatforms();
+            model._isGameOver = false;
+            gameLoop();
+        }
     </script>
 </body>
 </html>
