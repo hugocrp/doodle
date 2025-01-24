@@ -74,6 +74,7 @@
 
                 this._sliding();
                 this._checkPlatformCollision();
+                this._generateNewPlatforms();
                 this.b_Display(this._position, this._platforms);
             }
 
@@ -89,6 +90,15 @@
                     platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, 'green'));
                 }
                 return platforms;
+            }
+
+            _generateNewPlatforms() {
+                const highestPlatform = this._platforms.reduce((max, platform) => platform.position.y < max.position.y ? platform : max, this._platforms[0]);
+                if (highestPlatform.position.y > 100) {
+                    let posX = Math.random() * (210 - Model.PLATFORM_WIDTH);
+                    let posY = highestPlatform.position.y - 100;
+                    this._platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, 'green'));
+                }
             }
 
             _checkPlatformCollision() {
