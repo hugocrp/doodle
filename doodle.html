@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mouvement</title>
+    <title>Doodle</title>
 </head>
 <body>
-    <canvas id="my_canvas" width="110" height="110" style="border: 1px solid red"></canvas>
+    <canvas id="my_canvas" width="300" height="550" style="border: 1px solid red"></canvas>
 
     <script>
         class Model {
@@ -23,7 +23,7 @@
             get position() { return this._position; }
 
             get direction() { return this._direction; }
-            set direction(value) { return this._direction = value; }
+            set direction(value) { this._direction = value; }
             
             BindDisplay(callback) {
                 this.b_Display = callback;
@@ -34,7 +34,7 @@
                 this._position.y += this._gravitySpeed / fps;
                 this._position.x += this._direction * Model.SPEED / fps;
 
-                if (this._position.y > 100) {
+                if (this._position.y > 500) {
                     this._Jump();
                 }
 
@@ -49,71 +49,87 @@
         class View {
             constructor() {
                 this._canvas = document.getElementById('my_canvas');
-                this.ctx     = this._canvas.getContext('2d');
+                this.ctx = this._canvas.getContext('2d');
                 this._hold_right = false;
                 this._hold_left = false;
+                this._direction = 0; // Ajoutez cette ligne pour initialiser la direction
+
+                this.characterImage = new Image();
+                this.characterImage.src = 'assets/character.png';
+
+                this.backgroundImage = new Image();
+                this.backgroundImage.src = 'assets/background.png';
+
+                this.HEXTILES_IMAGE = new Image();
+                this.HEXTILES_IMAGE.src = 'assets/game-tiles.png';
 
                 this.Events();
-            }
+             }
 
-            BindSetDirection(callback) {
-                this.b_SetDirection = callback;
-            }
+    BindSetDirection(callback) {
+        this.b_SetDirection = (direction) => {
+            if (direction !== 0) {
+                    this._lastDirection = direction; // Mettez à jour la dernière direction
+                }
+            callback(direction);
+        };
+    }
 
-            Events() {
-                document.addEventListener('keydown', (evt) => {                
-                    if (evt.key == 'ArrowLeft' || evt.key == 'ArrowRight') {
-                        switch (evt.key) {
-                            case 'ArrowLeft': // Move left.
-                                this._hold_left = true;
-                                this.b_SetDirection(-1);
-                                break;
-                            case 'ArrowRight': // Move right.
-                                this._hold_right = true;
-                                this.b_SetDirection(1);
-                                break;
-                        }
+    Events() {
+        document.addEventListener('keydown', (evt) => {
+            if (evt.key == 'ArrowLeft' || evt.key == 'ArrowRight') {
+                switch (evt.key) {
+                    case 'ArrowLeft': // Move left.
+                        this._hold_left = true;
+                        this.b_SetDirection(-1);
+                        break;
+                    case 'ArrowRight': // Move right.
+                        this._hold_right = true;
+                        this.b_SetDirection(1);
+                        break;
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (evt) => {
+            switch (evt.key) {
+                case 'ArrowLeft': // Move left.
+                    if (!this._hold_right) {
+                        this.b_SetDirection(0);
                     }
-                });
-
-                document.addEventListener('keyup', (evt) => {
-                    switch (evt.key) {
-                        case 'ArrowLeft': // Move left.
-                            if (!this._hold_right) {
-                                this.b_SetDirection(0);
-                            }
-                            this._hold_left = false;
-                            break;
-                        case 'ArrowRight': // Move right.
-                            if (!this._hold_left) {
-                                this.b_SetDirection(0);
-                            }
-                            this._hold_right = false;
-                            break;
+                    this._hold_left = false;
+                    break;
+                case 'ArrowRight': // Move right.
+                    if (!this._hold_left) {
+                        this.b_SetDirection(0);
                     }
-                });
+                    this._hold_right = false;
+                    break;
             }
+        });
+    }
 
-            Display(position) {
-                let x = position.x;
-                let y = position.y;
-                
-                this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    Display(position) {
+        let x = position.x;
+        let y = position.y;
 
-                // Dessiner les lignes.
-                this.ctx.beginPath(); // Nouveau tracé.
-                this.ctx.moveTo(100, 0); // Déplacement du crayon en (100, 0).
-                this.ctx.lineTo(100, 100); // Dessiner la ligne en (150, 100).
-                this.ctx.stroke(); // Afficher la ligne.
-                this.ctx.beginPath(); // Nouveau tracé.
-                this.ctx.moveTo(0, 100); // Déplacement du crayon en (100, 0).
-                this.ctx.lineTo(100, 100); // Dessiner la ligne en (150, 100).
-                this.ctx.stroke(); // Afficher la ligne.
-                
-                // Dessiner un rectangle plein.
-                this.ctx.fillRect(x, y, 10, 10);
-            }
+        this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+
+        this.ctx.drawImage(this.backgroundImage, 0, 0, this._canvas.width, this._canvas.height);
+
+        let height = 50;
+        let width = this.characterImage.width * (height / this.characterImage.height);
+
+        this.ctx.save();
+        if (this._lastDirection === -1) {
+            this.ctx.scale(-1, 1);
+            this.ctx.drawImage(this.characterImage, -x - width, y, width, height);
+        } else {
+            this.ctx.drawImage(this.characterImage, x, y, width, height);
         }
+        this.ctx.restore();
+    }
+}
 
         class Controller {
             constructor(model, view) {
