@@ -5,6 +5,11 @@ class View {
         this.holdRight = false;
         this.holdLeft = false;
         this._lastDirection = 0;
+        this._widthCell   = 57; // Largeur d'une cellule en pixel.
+        this._heightCell  = 17; // Hauteur d'une cellule en pixel.
+
+        this.gamesTiles = new Image();
+        this.gamesTiles.src = 'assets/img/game-tiles.png';
 
         this.characterImage = new Image();
         this.characterImage.src = 'assets/img/character.png';
@@ -25,8 +30,16 @@ class View {
         this.ctx.drawImage(this.backgroundImage, 0, 0, this.canvas.width, this.canvas.height);
 
         platforms.forEach(platform => {
-            this.ctx.fillStyle = platform.color;
-            this.ctx.fillRect(platform.position.x, platform.position.y, platform.width, platform.height);
+            if(platform.color === "blue"){
+                this.ctx.drawImage(this.gamesTiles, 1, 19, this._widthCell, this._heightCell, platform.position.x, platform.position.y, this._widthCell, this._heightCell);
+            }else if(platform.color === "gray"){
+                this.ctx.drawImage(this.gamesTiles, 1, 55, this._widthCell, this._heightCell, platform.position.x , platform.position.y, this._widthCell, this._heightCell);
+            }else{
+                this.ctx.drawImage(this.gamesTiles, 1, 1, this._widthCell, this._heightCell, platform.position.x, platform.position.y, this._widthCell, this._heightCell);
+            }
+
+            // this.ctx.fillStyle = platform.color;
+            // this.ctx.fillRect(platform.position.x, platform.position.y, platform.width, platform.height);
         });
 
         this.ctx.save();
