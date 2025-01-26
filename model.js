@@ -30,10 +30,10 @@ class Model {
             this.jump();
         }
 
-        if (this.player.position.x > 200) {
+        if (this.player.position.x > 300) {
             this.player.position.x = 0;
         } else if (this.player.position.x < 0) {
-            this.player.position.x = 200;
+            this.player.position.x = 300;
         }
         
         this._generateNewPlatforms();   
@@ -51,8 +51,8 @@ class Model {
     generatePlatforms() {
         const platforms = [];
         for (let i = 0; i < 10; i++) {
-            const posX = Math.random() * (210 - Model.PLATFORM_WIDTH);
-            const posY = i * (400 / 10);
+            const posX = Math.random() * (300 - Model.PLATFORM_WIDTH);
+            const posY = i * (600 / 10);
             const color = Math.random() < 0.5 ? 'green' : 'blue';
             platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, color));
         }
@@ -71,7 +71,7 @@ class Model {
 
         if (highestPlatform.position.y > 100) {
             let color = Math.random() < 0.5 ? 'green' : Math.random() < 0.5 ? 'blue' : 'gray';
-            let posX = Math.random() * (210 - Model.PLATFORM_WIDTH);
+            let posX = Math.random() * (300 - Model.PLATFORM_WIDTH);
             let posY = highestPlatform.position.y - 100;
             this.platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, color));
         }

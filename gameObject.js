@@ -16,7 +16,7 @@ class Platform extends GameObject {
     update() {
         if (this.color === 'blue') {
             this.position.x += this.direction;
-            if (this.position.x <= 0 || this.position.x + this.width >= 210) {
+            if (this.position.x <= 0 || this.position.x + this.width >= 300) {
                 this.direction *= -1;
             }
         }
