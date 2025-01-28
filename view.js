@@ -1,6 +1,6 @@
 class View {
-    constructor() {
-        this.canvas = document.getElementById('my_canvas');
+    constructor(canvasId = 'my_canvas') {
+        this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
         this.holdRight = false;
         this.holdLeft = false;

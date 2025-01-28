@@ -7,14 +7,34 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    
+
+    <p>Scores des IA :</p>
+    <ul id="ia-scores">
+    <li>IA 1: <span id="score_0">0</span></li>
+    <li>IA 2: <span id="score_1">0</span></li>
+    <li>IA 3: <span id="score_2">0</span></li>
+    <li>IA 4: <span id="score_3">0</span></li>
+    <li>IA 5: <span id="score_4">0</span></li>
+    <li>IA 6: <span id="score_5">0</span></li>
+    </ul>
+
     <p>Score =
         <span id="score">0</span>
         <button id="play">Jouer</button>
         <button id="play-ia"> Jouer avec IA </button>
     </p>
-
-    <div style="display: flex; align-items: center; justify-content: center; height: 100vh;">
+    <div id="single-canvas-container" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
         <canvas id="my_canvas" width="300" height="600" style="border: 1px solid red"></canvas>
+    </div>
+
+    <div id="multi-canvas-container" style="display: none; flex-wrap: wrap; align-items: center; justify-content: center; height: 100vh;">
+        <canvas id="my_canvas_0" width="300" height="600" style="border: 1px solid red; margin: 10px;"></canvas>
+        <canvas id="my_canvas_1" width="300" height="600" style="border: 1px solid red; margin: 10px;"></canvas>
+        <canvas id="my_canvas_2" width="300" height="600" style="border: 1px solid red; margin: 10px;"></canvas>
+        <canvas id="my_canvas_3" width="300" height="600" style="border: 1px solid red; margin: 10px;"></canvas>
+        <canvas id="my_canvas_4" width="300" height="600" style="border: 1px solid red; margin: 10px;"></canvas>
+        <canvas id="my_canvas_5" width="300" height="600" style="border: 1px solid red; margin: 10px;"></canvas>
     </div>
 
     <script type="module" src="index.js"></script>

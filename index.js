@@ -11,7 +11,6 @@ const populationSize = 100;
 const inputSize = 6;
 const nbreNeuronnes = 4;
 const outputSize = 3;
-const numGenerations = 100;
 const numBest = 15;
 const valeurDeMutation = 0.1;
 
@@ -23,14 +22,19 @@ function gameLoop() {
 }
 
 function play() {
+    document.getElementById('single-canvas-container').style.display = 'flex';
+    document.getElementById('multi-canvas-container').style.display = 'none';
     model.resetGame();
     model.isGameOver = false;
     gameLoop();
 }
 
 function playWithAI(){
+    document.getElementById('single-canvas-container').style.display = 'none';
+    document.getElementById('multi-canvas-container').style.display = 'flex';
     const geneticAlgorithm = new GeneticAlgorithm(populationSize, inputSize, nbreNeuronnes, outputSize);
-    geneticAlgorithm.run(numGenerations, numBest, valeurDeMutation);
+    geneticAlgorithm.run(numBest, valeurDeMutation);
+  
 }
 
 document.getElementById('play').addEventListener('click', play);

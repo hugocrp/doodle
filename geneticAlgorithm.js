@@ -19,15 +19,35 @@ class GeneticAlgorithm {
     }
 
     evaluatePopulation() {
-        return this.population.map(network => {
+        this.population.forEach((network, index) => {
             const model = new Model();
-            const view = new View();
+            const view = new View(`my_canvas_${index % 6}`);
             const controller = new Controller(model, view);
-            return {
-                network,
-                score: controller.runGameWithNetwork(network)
-            };
+            this.runGameWithNetwork(controller, network, index);
         });
+    }
+
+    runGameWithNetwork(controller, network, index) {
+        const updateGame = () => {
+            if (!controller.model.isGameOver) {
+                const inputs = [
+                    controller.model.player.position.x / 300,
+                    controller.model.player.position.y / 600,
+                    controller.model.gravitySpeed / Model.JUMP_FORCE,
+                    controller.model.direction
+                ];
+                const output = network.prediction(inputs);
+                controller.model.setDirection(output[0] > 0.5 ? 1 : output[0] < -0.5 ? -1 : 0);
+                controller.update(60);
+                requestAnimationFrame(updateGame);
+            } else {
+                console.log(`Score for network ${index}: ${controller.model.score}`);
+                document.getElementById(`score_${index}`).innerText = controller.model.score;
+            }
+        };
+        controller.model.resetGame();
+        controller.model.isGameOver = false;
+        updateGame();
     }
 
     selectBest(evaluatedPopulation, numBest) {
@@ -105,13 +125,13 @@ class GeneticAlgorithm {
         this.population = nextGeneration.slice(0, this.populationSize); // pour ne pas dépasser la population voulu (de 100 là)
     }
 
-    run(numGenerations, numBest, mutationRate) {
-        for (let generation = 0; generation < numGenerations; generation++) {
-            const evaluatedPopulation = this.evaluatePopulation();
-            const bestPopulation = this.selectBest(evaluatedPopulation, numBest);
-            this.createNextGeneration(bestPopulation, mutationRate);
-            console.log(`Generation numéro ${generation + 1}: Meilleur score = ${evaluatedPopulation[0].score}`);
-        }
+    run(numBest, mutationRate) {
+        const evaluatedPopulation = this.evaluatePopulation();
+        const bestPopulation = this.selectBest(evaluatedPopulation, numBest);
+        this.createNextGeneration(bestPopulation, mutationRate);
+        evaluatedPopulation.forEach((obj,index) => {
+            console.log("Score num " + index + " = " + obj.score);
+          });
     }
 }
 
