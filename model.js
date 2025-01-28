@@ -1,4 +1,6 @@
+import EntryVector from './EntryVector.js';
 import { Platform, Player } from './gameObject.js';
+import Vector from './Vector.js';
 
 class Model {
     static GRAVITY = 20;
@@ -21,12 +23,73 @@ class Model {
         this.displayCallback = callback;
     }
 
+    
+    getVectors(platforms, player) {
+        const mapWidth = 300;
+        const mapHeight = 600;
+        const halfWidth = mapWidth / 2;
+        const halfHeight = mapHeight / 2;
+    
+        const quadrants = [
+            { xMin: 0, xMax: halfWidth, yMin: 0, yMax: halfHeight }, // Top-left
+            { xMin: halfWidth, xMax: mapWidth, yMin: 0, yMax: halfHeight }, // Top-right
+            { xMin: 0, xMax: halfWidth, yMin: halfHeight, yMax: mapHeight }, // Bottom-left
+            { xMin: halfWidth, xMax: mapWidth, yMin: halfHeight, yMax: mapHeight } // Bottom-right
+        ];
+    
+        const vectors = quadrants.map(quadrant => {
+            let closestPlatform = null;
+            let minDistance = Infinity;
+    
+            platforms.forEach(platform => {
+                if (
+                    platform.position.x >= quadrant.xMin &&
+                    platform.position.x <= quadrant.xMax &&
+                    platform.position.y >= quadrant.yMin &&
+                    platform.position.y <= quadrant.yMax
+                ) {
+                    const distance = Math.hypot(
+                        platform.position.x - player.position.x,
+                        platform.position.y - player.position.y
+                    );
+    
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestPlatform = platform;
+                    }
+                }
+            });
+
+
+            if (closestPlatform == null) {
+                console.log("aaaaaaaaah")
+            }
+    
+            return closestPlatform ? closestPlatform : -1;
+        });
+    
+        return vectors;
+    }
+
+    getEntryVectors(vectors) {
+        let entryVector = new EntryVector(
+            new Vector(vectors[0] != -1 ? vectors[0].position.x : -1, vectors[0] != -1 ? vectors[0].position.y : -1, 'red'),
+            new Vector(vectors[1] != -1 ? vectors[1].position.x : -1, vectors[1] != -1 ? vectors[1].position.y : -1, 'blue'),
+            new Vector(vectors[2] != -1 ? vectors[2].position.x : -1, vectors[2] != -1 ? vectors[2].position.y : -1, 'green'),
+            new Vector(vectors[3] != -1 ? vectors[3].position.x : -1, vectors[3] != -1 ? vectors[3].position.y : -1, 'yellow'),
+            this.player.position.x,
+            this.player.position.y
+        );
+
+        return entryVector;
+    }
+
     move(fps) {
         this.gravitySpeed += Model.GRAVITY;
         this.player.position.y += this.gravitySpeed / fps;
         this.player.position.x += this.direction * Model.SPEED / fps;
 
-        if (this.player.position.y > 400) {
+        if (this.player.position.y > 600) {
             this.jump();
         }
 
@@ -35,6 +98,17 @@ class Model {
         } else if (this.player.position.x < 0) {
             this.player.position.x = 300;
         }
+
+        // let vectors = this.getVectors(this.platforms, this.player);
+        // // console.log(vectors)
+        // let entryVector = new EntryVector(
+        //     new Vector(vectors[0] != -1 ? vectors[0].position.x : -1, vectors[0] != -1 ? vectors[0].position.y : -1, 'red'),
+        //     new Vector(vectors[1] != -1 ? vectors[1].position.x : -1, vectors[1] != -1 ? vectors[1].position.y : -1, 'blue'),
+        //     new Vector(vectors[2] != -1 ? vectors[2].position.x : -1, vectors[2] != -1 ? vectors[2].position.y : -1, 'green'),
+        //     new Vector(vectors[3] != -1 ? vectors[3].position.x : -1, vectors[3] != -1 ? vectors[3].position.y : -1, 'yellow'),
+        //     this.player.position.x,
+        //     this.player.position.y
+        // );
         
         this._generateNewPlatforms();   
         this.updatePlatforms();
@@ -95,7 +169,7 @@ class Model {
     }
 
     checkDeath() {
-        if (this.player.position.y > 400) {
+        if (this.player.position.y > 600) {
             this.isGameOver = true;
             this.resetGame();
         }

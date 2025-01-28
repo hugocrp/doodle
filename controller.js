@@ -11,6 +11,9 @@ class Controller {
 
     update(fps) {
         this.model.move(fps);
+        const vectors = this.model.getVectors(this.model.platforms, this.model.player);
+        const entryVectors = this.model.getEntryVectors(vectors);
+        this.view.drawVectors(this.model.player, entryVectors);
     }
 
     runGameWithNetwork(network) {
