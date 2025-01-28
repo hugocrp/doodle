@@ -19,4 +19,15 @@ export default class EntryVector {
             playerRelativeY: this.playerRelativeY
         }
     }
+
+    getVectorArray = () => {
+        return [
+            this.v1.getMagnitude(),
+            this.v2.getMagnitude(),
+            this.v3.getMagnitude(),
+            this.v4.getMagnitude(),
+            this.playerRelativeX,
+            this.playerRelativeY
+        ];
+    }
 }

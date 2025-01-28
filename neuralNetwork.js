@@ -11,7 +11,7 @@ export class NeuralNetwork {
             Array.from({ length: cols }, () => Math.random() * 2 - 1)
         );
     }
-
+ 
     produitMatrice(matrix, vector) {
         return matrix.map(row =>
             row.reduce((sum, value, index) => sum + value * vector[index], 0)
@@ -29,11 +29,14 @@ export class NeuralNetwork {
 
     prediction(input) {
         let hidden = this.sommePondereEtBiais(this.weightsInputHidden, input, this.biasHidden);
-        hidden = this.relu(hidden);
+        const hiddenAfterRelu = this.relu(hidden);
         
-        let output = this.sommePondereEtBiais(this.weightsHiddenOutput, hidden, this.biasOutput);
-        output = this.relu(output);
-        
-        return output;
+        let output = this.sommePondereEtBiais(this.weightsHiddenOutput, hiddenAfterRelu, this.biasOutput);
+        const outputfinal = this.relu(output);
+        // console.log("Output (after ReLU):", output);
+        const maxIndex = outputfinal.indexOf(Math.max(...outputfinal));
+
+        // Renvoie -1, 0 ou 1 selon l'index du maximum
+        return maxIndex - 1;
     }
 }

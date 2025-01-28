@@ -60,10 +60,6 @@ class Model {
                 }
             });
 
-
-            if (closestPlatform == null) {
-                console.log("aaaaaaaaah")
-            }
     
             return closestPlatform ? closestPlatform : -1;
         });

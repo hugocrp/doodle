@@ -17,38 +17,50 @@ class GeneticAlgorithm {
             new NeuralNetwork(this.inputSize, this.hiddenSize, this.outputSize)
         );
     }
+    
+    evaluatePopulation(callback) {
+        const evaluatedPopulation = [];
+        let completed = 0;
 
-    evaluatePopulation() {
         this.population.forEach((network, index) => {
             const model = new Model();
             const view = new View(`my_canvas_${index % 6}`);
             const controller = new Controller(model, view);
-            this.runGameWithNetwork(controller, network, index);
+
+            controller.runGameWithNetwork(network, score => {
+                evaluatedPopulation.push({ network, score });
+                completed++;
+                if (completed === this.population.length) {
+                    callback(evaluatedPopulation);
+                }
+            });
         });
     }
 
-    runGameWithNetwork(controller, network, index) {
-        const updateGame = () => {
-            if (!controller.model.isGameOver) {
-                const inputs = [
-                    controller.model.player.position.x / 300,
-                    controller.model.player.position.y / 600,
-                    controller.model.gravitySpeed / Model.JUMP_FORCE,
-                    controller.model.direction
-                ];
-                const output = network.prediction(inputs);
-                controller.model.setDirection(output[0] > 0.5 ? 1 : output[0] < -0.5 ? -1 : 0);
-                controller.update(60);
-                requestAnimationFrame(updateGame);
-            } else {
-                console.log(`Score for network ${index}: ${controller.model.score}`);
-                document.getElementById(`score_${index}`).innerText = controller.model.score;
-            }
-        };
-        controller.model.resetGame();
-        controller.model.isGameOver = false;
-        updateGame();
-    }
+    // runGameWithNetwork(controller, network, index) {
+    //     const updateGame = () => {
+    //         if (!controller.model.isGameOver) {
+    //             // const inputs = [
+    //             //     controller.model.player.position.x / 300,
+    //             //     controller.model.player.position.y / 600,
+    //             //     controller.model.gravitySpeed / Model.JUMP_FORCE,
+    //             //     controller.model.direction
+    //             // ];
+    //             const inputs = controller.model.getEntryVectors;
+    //             const output = network.prediction(inputs);
+    //             console.log(output);
+    //             controller.model.setDirection(output);
+    //             controller.update(60);
+    //             requestAnimationFrame(updateGame);
+    //         } else {
+    //             console.log(`Score for network ${index}: ${controller.model.score}`);
+    //             document.getElementById(`score_${index}`).innerText = controller.model.score;
+    //         }
+    //     };
+    //     //controller.model.resetGame();
+    //     //controller.model.isGameOver = false;
+    //     //updateGame();
+    // }
 
     selectBest(evaluatedPopulation, numBest) {
         return evaluatedPopulation
@@ -125,13 +137,15 @@ class GeneticAlgorithm {
         this.population = nextGeneration.slice(0, this.populationSize); // pour ne pas dépasser la population voulu (de 100 là)
     }
 
-    run(numBest, mutationRate) {
-        const evaluatedPopulation = this.evaluatePopulation();
-        const bestPopulation = this.selectBest(evaluatedPopulation, numBest);
-        this.createNextGeneration(bestPopulation, mutationRate);
-        evaluatedPopulation.forEach((obj,index) => {
-            console.log("Score num " + index + " = " + obj.score);
-          });
+    run(numBest, mutationRate, callback) {
+        this.evaluatePopulation(evaluatedPopulation => {
+            const bestPopulation = this.selectBest(evaluatedPopulation, numBest);
+            this.createNextGeneration(bestPopulation, mutationRate);
+            evaluatedPopulation.forEach((obj, index) => {
+                console.log("Score num " + index + " = " + obj.score);
+            });
+            callback();
+        });
     }
 }
 

@@ -13,6 +13,7 @@ const nbreNeuronnes = 4;
 const outputSize = 3;
 const numBest = 15;
 const valeurDeMutation = 0.1;
+const numGenerations = 1;
 
 function gameLoop() {
     if (!model.isGameOver) {
@@ -29,14 +30,31 @@ function play() {
     gameLoop();
 }
 
-function playWithAI(){
+// function playWithAI(){
+//     document.getElementById('single-canvas-container').style.display = 'none';
+//     document.getElementById('multi-canvas-container').style.display = 'flex';
+//     const geneticAlgorithm = new GeneticAlgorithm(populationSize, inputSize, nbreNeuronnes, outputSize);
+//     geneticAlgorithm.run(numBest, valeurDeMutation);
+  
+// }
+
+function playWithAI() {
     document.getElementById('single-canvas-container').style.display = 'none';
     document.getElementById('multi-canvas-container').style.display = 'flex';
     const geneticAlgorithm = new GeneticAlgorithm(populationSize, inputSize, nbreNeuronnes, outputSize);
-    geneticAlgorithm.run(numBest, valeurDeMutation);
-  
-}
+    let generation = 0;
 
+    const runGeneration = () => {
+        if (generation < numGenerations) {
+            geneticAlgorithm.run(numBest, valeurDeMutation, () => {
+                generation++;
+                runGeneration();
+            });
+        }
+    };
+
+    runGeneration();
+}
 document.getElementById('play').addEventListener('click', play);
 document.getElementById('play-ia').addEventListener('click', playWithAI);
 
