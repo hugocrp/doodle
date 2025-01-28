@@ -95,7 +95,7 @@ class Model {
     }
 
     checkDeath() {
-        if (this.player.position.y > 400) {
+        if (this.player.position.y > 600) {
             this.isGameOver = true;
             this.resetGame();
         }
