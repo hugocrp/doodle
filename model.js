@@ -129,9 +129,9 @@ class Model {
     generatePlatforms() {
         const platforms = [];
         for (let i = 0; i < 10; i++) {
-            const posX = Math.random() * (300 - Model.PLATFORM_WIDTH);
+            const posX = Math.random() * (300 - Model.PLATFORM_WIDTH - 20) + 10; // Marge de 10 pixels
             const posY = i * (600 / 10);
-            const color = Math.random() < 0.5 ? 'green' : 'blue';
+            const color = Math.random() < 0.8 ? 'green' : 'blue'; // Moins de plateformes spéciales au début
             platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, color));
         }
         return platforms;
@@ -142,18 +142,39 @@ class Model {
     }
 
     _generateNewPlatforms() {
-        const highestPlatform = this.platforms.reduce((max, platform) => 
-            platform.position.y < max.position.y ? platform : max, 
-            this.platforms[0]
-        );
+    const highestPlatform = this.platforms.reduce((max, platform) => 
+        platform.position.y < max.position.y ? platform : max, 
+        this.platforms[0]
+    );
 
-        if (highestPlatform.position.y > 100) {
-            let color = Math.random() < 0.5 ? 'green' : Math.random() < 0.5 ? 'blue' : 'gray';
-            let posX = Math.random() * (300 - Model.PLATFORM_WIDTH);
-            let posY = highestPlatform.position.y - 100;
-            this.platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, color));
+    if (highestPlatform.position.y > 50) {
+        let platformType = Math.random();
+        let color;
+        let spacing;
+
+        if (this.score < 1000) {
+            spacing = Math.random() * 100 + 50;
+            if (platformType < 0.8) {
+                color = 'green';
+            } else {
+                color = 'blue';
+            }
+        } else {
+            spacing = Math.random() * 80 + 40;
+            if (platformType < 0.6) {
+                color = 'green';
+            } else if (platformType < 0.8) {
+                color = 'blue';
+            } else {
+                color = 'gray';
+            }
         }
+
+        let posX = Math.random() * (300 - Model.PLATFORM_WIDTH - 20) + 10;
+        let posY = highestPlatform.position.y - spacing;
+        this.platforms.push(new Platform(posX, posY, Model.PLATFORM_WIDTH, Model.PLATFORM_HEIGHT, color));
     }
+}
 
     checkPlatformCollision() {
         this.platforms.forEach(platform => {
@@ -183,6 +204,7 @@ class Model {
         this.player.position = { x: 100, y: 200 };
         this.score = 0;
         this.platforms = this.generatePlatforms();
+        // arronde
         document.getElementById('score').innerText = this.score;
     }
 
@@ -190,7 +212,7 @@ class Model {
         if (this.player.position.y < 200) {
             const sliding = 200 - this.player.position.y;
             this.score += sliding;
-            document.getElementById('score').innerText = this.score;
+            document.getElementById('score').innerText = Math.round(this.score);
             this.player.position.y = 200;
             this.platforms.forEach(platform => (platform.position.y += sliding));
         }
