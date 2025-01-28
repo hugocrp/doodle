@@ -85,6 +85,7 @@ class Model {
     }
 
     move(fps) {
+        console.log(this.platforms.length)
         this.gravitySpeed += Model.GRAVITY;
         this.player.position.y += this.gravitySpeed / fps;
         this.player.position.x += this.direction * Model.SPEED / fps;
@@ -98,6 +99,9 @@ class Model {
         } else if (this.player.position.x < 0) {
             this.player.position.x = 300;
         }
+
+        // supprimer toutes les plateformes avec y > 600
+        this.platforms = this.platforms.filter(platform => platform.position.y < 600);
 
         // let vectors = this.getVectors(this.platforms, this.player);
         // // console.log(vectors)
