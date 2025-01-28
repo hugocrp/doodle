@@ -12,6 +12,27 @@ class Controller {
     update(fps) {
         this.model.move(fps);
     }
+
+    runGameWithNetwork(network) {
+        this.model.resetGame();
+        this.model.isGameOver = false;
+        let steps = 0;
+        while (!this.model.isGameOver && steps < 1000) {
+            const inputs = [
+                this.model.player.position.x / 300,
+                this.model.player.position.y / 600,
+                this.model.gravitySpeed / Model.JUMP_FORCE,
+                this.model.direction
+            ];
+            const output = network.prediction(inputs);
+            this.model.setDirection(output[0] > 0.5 ? 1 : output[0] < -0.5 ? -1 : 0);
+            this.update(60);
+            steps++;
+        }
+        return this.model.score;
+    }
+
+    
 }
 
 export default Controller;

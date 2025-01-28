@@ -111,7 +111,7 @@ class Model {
     sliding() {
         if (this.player.position.y < 200) {
             const sliding = 200 - this.player.position.y;
-            this.score += sliding;
+            this.score += Math.ceil(sliding);
             document.getElementById('score').innerText = this.score;
             this.player.position.y = 200;
             this.platforms.forEach(platform => (platform.position.y += sliding));
