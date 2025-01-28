@@ -24,6 +24,24 @@ class View {
         this.setDirectionCallback = callback;
     }
 
+    drawVectors(player, entryVectors) {
+        const vectors = [entryVectors.v1, entryVectors.v2, entryVectors.v3, entryVectors.v4];
+        for (let i = 0; i < vectors.length; i++) {
+            if (vectors[i] != -1) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(player.position.x, player.position.y);
+
+                if (vectors[i].x != -1 && vectors[i].y != -1) {
+                    this.ctx.strokeStyle = vectors[i].color || 'black'; // Default to black if color is not defined
+                    this.ctx.lineWidth = 2;
+                    this.ctx.lineTo(vectors[i].x * 300, vectors[i].y * 600);
+                }
+
+                this.ctx.stroke();
+            }
+        }
+    }
+
     display(player, platforms) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         

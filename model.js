@@ -71,6 +71,19 @@ class Model {
         return vectors;
     }
 
+    getEntryVectors(vectors) {
+        let entryVector = new EntryVector(
+            new Vector(vectors[0] != -1 ? vectors[0].position.x : -1, vectors[0] != -1 ? vectors[0].position.y : -1, 'red'),
+            new Vector(vectors[1] != -1 ? vectors[1].position.x : -1, vectors[1] != -1 ? vectors[1].position.y : -1, 'blue'),
+            new Vector(vectors[2] != -1 ? vectors[2].position.x : -1, vectors[2] != -1 ? vectors[2].position.y : -1, 'green'),
+            new Vector(vectors[3] != -1 ? vectors[3].position.x : -1, vectors[3] != -1 ? vectors[3].position.y : -1, 'yellow'),
+            this.player.position.x,
+            this.player.position.y
+        );
+
+        return entryVector;
+    }
+
     move(fps) {
         this.gravitySpeed += Model.GRAVITY;
         this.player.position.y += this.gravitySpeed / fps;
@@ -86,17 +99,16 @@ class Model {
             this.player.position.x = 300;
         }
 
-        let vectors = this.getVectors(this.platforms, this.player);
-        // console.log(vectors)
-        let entryVector = new EntryVector(
-            new Vector(vectors[0] != -1 ? vectors[0].position.x : -1, vectors[0] != -1 ? vectors[0].position.y : -1, 'red'),
-            new Vector(vectors[1] != -1 ? vectors[1].position.x : -1, vectors[1] != -1 ? vectors[1].position.y : -1, 'blue'),
-            new Vector(vectors[2] != -1 ? vectors[2].position.x : -1, vectors[2] != -1 ? vectors[2].position.y : -1, 'green'),
-            new Vector(vectors[3] != -1 ? vectors[3].position.x : -1, vectors[3] != -1 ? vectors[3].position.y : -1, 'yellow'),
-            this.player.position.x,
-            this.player.position.y
-        );
-        console.log(entryVector.getVector());
+        // let vectors = this.getVectors(this.platforms, this.player);
+        // // console.log(vectors)
+        // let entryVector = new EntryVector(
+        //     new Vector(vectors[0] != -1 ? vectors[0].position.x : -1, vectors[0] != -1 ? vectors[0].position.y : -1, 'red'),
+        //     new Vector(vectors[1] != -1 ? vectors[1].position.x : -1, vectors[1] != -1 ? vectors[1].position.y : -1, 'blue'),
+        //     new Vector(vectors[2] != -1 ? vectors[2].position.x : -1, vectors[2] != -1 ? vectors[2].position.y : -1, 'green'),
+        //     new Vector(vectors[3] != -1 ? vectors[3].position.x : -1, vectors[3] != -1 ? vectors[3].position.y : -1, 'yellow'),
+        //     this.player.position.x,
+        //     this.player.position.y
+        // );
         
         this._generateNewPlatforms();   
         this.updatePlatforms();
