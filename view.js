@@ -1,7 +1,8 @@
 class View {
-    constructor(canvasId = 'my_canvas') {
+    constructor(canvasId = 'my_canvas', scoreId = 'score') {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
+        this.scoreElement = document.getElementById(scoreId);
         this.holdRight = false;
         this.holdLeft = false;
         this._lastDirection = 0;
@@ -22,6 +23,9 @@ class View {
 
     bindSetDirection(callback) {
         this.setDirectionCallback = callback;
+    }
+    updateScore(score) {
+        this.scoreElement.innerText = score;
     }
 
     drawVectors(player, entryVectors) {

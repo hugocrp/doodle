@@ -9,7 +9,7 @@ const controller = new Controller(model, view);
 
 const populationSize = 100;
 const inputSize = 6;
-const nbreNeuronnes = 4;
+const nbreNeuronnes = 6;
 const outputSize = 3;
 const numBest = 30;
 const valeurDeMutation = 0.1;
@@ -53,13 +53,25 @@ function playWithAI() {
     multiCanvasContainer.innerHTML = '';
 
     for (let i = 0; i < populationSize; i++) {
+        const canvasContainer = document.createElement('div');
+        canvasContainer.style.display = 'flex';
+        canvasContainer.style.flexDirection = 'column';
+        canvasContainer.style.alignItems = 'center';
+        canvasContainer.style.margin = '10px';
+
+        const scoreElement = document.createElement('span');
+        scoreElement.id = `score_${i}`;
+        scoreElement.innerText = 'Score: 0';
+        canvasContainer.appendChild(scoreElement);
+
         const canvas = document.createElement('canvas');
         canvas.id = `my_canvas_${i}`;
         canvas.width = 300;
         canvas.height = 600;
         canvas.style.border = '1px solid red';
-        canvas.style.margin = '10px';
-        multiCanvasContainer.appendChild(canvas);
+        canvasContainer.appendChild(canvas);
+
+        multiCanvasContainer.appendChild(canvasContainer);
     }
 
     document.getElementById('single-canvas-container').style.display = 'none';
@@ -74,11 +86,14 @@ function playWithAI() {
                 generation++;
                 runGeneration();
             });
+        } else {
+            console.log("Évolution terminée");
         }
     };
 
     runGeneration();
 }
+
 document.getElementById('play').addEventListener('click', play);
 document.getElementById('play-ia').addEventListener('click', playWithAI);
 

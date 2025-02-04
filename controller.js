@@ -1,40 +1,3 @@
-// import Model from './model.js';
-// import View from './view.js';
-
-// class Controller {
-//     constructor(model, view) {
-//         this.model = model;
-//         this.view = view;
-//         this.model.bindDisplay(this.view.display.bind(this.view));
-//         this.view.bindSetDirection(this.model.setDirection.bind(this.model));
-//     }
-
-//     update(fps) {
-//         this.model.move(fps);
-//         const vectors = this.model.getVectors(this.model.platforms, this.model.player);
-//         const entryVectors = this.model.getEntryVectors(vectors);
-//         this.view.drawVectors(this.model.player, entryVectors);
-//     }
-
-//     runGameWithNetwork(network) {
-//         this.model.resetGame();
-//         this.model.isGameOver = false;
-//         while (!this.model.isGameOver) {
-//             const inputs = this.model.getEntryVectors;
-//             const output = network.prediction(inputs);
-//             this.model.setDirection(output);
-//             this.update(60);
-            
-//         }
-//         return this.model.score;
-//     }
-
-    
-
-    
-// }
-
-// export default Controller;
 
 import Model from './model.js';
 import View from './view.js';
@@ -52,6 +15,7 @@ class Controller {
         const vectors = this.model.getVectors(this.model.platforms, this.model.player);
         const entryVectors = this.model.getEntryVectors(vectors);
         this.view.drawVectors(this.model.player, entryVectors);
+        this.view.updateScore(this.model.getScore());
     }
 
     // runGameWithNetwork(network, callback) {
@@ -74,7 +38,7 @@ class Controller {
     //     gameLoop();
     // }
 
-    runGameWithNetwork(network, callback) {
+    runGameWithNetwork(network, callback, canvasIndex) {
         this.model.resetGame();
         this.model.isGameOver = false;
         let lastScore = this.model.score;
@@ -105,6 +69,7 @@ class Controller {
     
         gameLoop();
     }
+
 }
 
 
