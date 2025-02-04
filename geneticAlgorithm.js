@@ -21,12 +21,12 @@ class GeneticAlgorithm {
     evaluatePopulation(callback) {
         const evaluatedPopulation = [];
         let completed = 0;
-
+    
         this.population.forEach((network, index) => {
             const model = new Model();
-            const view = new View(`my_canvas_${index % 6}`);
+            const view = new View(`my_canvas_${index}`);
             const controller = new Controller(model, view);
-
+    
             controller.runGameWithNetwork(network, score => {
                 evaluatedPopulation.push({ network, score });
                 completed++;
@@ -35,32 +35,7 @@ class GeneticAlgorithm {
                 }
             });
         });
-    }
-
-    // runGameWithNetwork(controller, network, index) {
-    //     const updateGame = () => {
-    //         if (!controller.model.isGameOver) {
-    //             // const inputs = [
-    //             //     controller.model.player.position.x / 300,
-    //             //     controller.model.player.position.y / 600,
-    //             //     controller.model.gravitySpeed / Model.JUMP_FORCE,
-    //             //     controller.model.direction
-    //             // ];
-    //             const inputs = controller.model.getEntryVectors;
-    //             const output = network.prediction(inputs);
-    //             console.log(output);
-    //             controller.model.setDirection(output);
-    //             controller.update(60);
-    //             requestAnimationFrame(updateGame);
-    //         } else {
-    //             console.log(`Score for network ${index}: ${controller.model.score}`);
-    //             document.getElementById(`score_${index}`).innerText = controller.model.score;
-    //         }
-    //     };
-    //     //controller.model.resetGame();
-    //     //controller.model.isGameOver = false;
-    //     //updateGame();
-    // }
+    }s
 
     selectBest(evaluatedPopulation, numBest) {
         return evaluatedPopulation

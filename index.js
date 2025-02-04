@@ -11,7 +11,7 @@ const populationSize = 100;
 const inputSize = 6;
 const nbreNeuronnes = 4;
 const outputSize = 3;
-const numBest = 15;
+const numBest = 30;
 const valeurDeMutation = 0.1;
 const numGenerations = 1;
 
@@ -30,17 +30,41 @@ function play() {
     gameLoop();
 }
 
-// function playWithAI(){
+// function playWithAI() {
 //     document.getElementById('single-canvas-container').style.display = 'none';
 //     document.getElementById('multi-canvas-container').style.display = 'flex';
 //     const geneticAlgorithm = new GeneticAlgorithm(populationSize, inputSize, nbreNeuronnes, outputSize);
-//     geneticAlgorithm.run(numBest, valeurDeMutation);
-  
+//     let generation = 0;
+
+//     const runGeneration = () => {
+//         if (generation < numGenerations) {
+//             geneticAlgorithm.run(numBest, valeurDeMutation, () => {
+//                 generation++;
+//                 runGeneration();
+//             });
+//         }
+//     };
+
+//     runGeneration();
 // }
 
 function playWithAI() {
+    const multiCanvasContainer = document.getElementById('multi-canvas-container');
+    multiCanvasContainer.innerHTML = '';
+
+    for (let i = 0; i < populationSize; i++) {
+        const canvas = document.createElement('canvas');
+        canvas.id = `my_canvas_${i}`;
+        canvas.width = 300;
+        canvas.height = 600;
+        canvas.style.border = '1px solid red';
+        canvas.style.margin = '10px';
+        multiCanvasContainer.appendChild(canvas);
+    }
+
     document.getElementById('single-canvas-container').style.display = 'none';
-    document.getElementById('multi-canvas-container').style.display = 'flex';
+    multiCanvasContainer.style.display = 'flex';
+
     const geneticAlgorithm = new GeneticAlgorithm(populationSize, inputSize, nbreNeuronnes, outputSize);
     let generation = 0;
 
