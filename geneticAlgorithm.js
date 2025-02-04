@@ -2,6 +2,7 @@ import { NeuralNetwork } from './neuralNetwork.js';
 import Model from './model.js';
 import View from './view.js';
 import Controller from './controller.js';
+import Graphic from './Graphic.js';
 
 class GeneticAlgorithm {
     constructor(populationSize, inputSize, hiddenSize, outputSize) {
@@ -10,6 +11,8 @@ class GeneticAlgorithm {
         this.hiddenSize = hiddenSize;
         this.outputSize = outputSize;
         this.population = this.createInitialPopulation();
+        this.generation = 1;
+        this.chart = new Graphic('chart_div');
     }
 
     createInitialPopulation() {
@@ -112,16 +115,35 @@ class GeneticAlgorithm {
         this.population = nextGeneration.slice(0, this.populationSize); // pour ne pas dépasser la population voulu (de 100 là)
     }
 
+    getBestScore(evaluatedPopulation) {
+        return evaluatedPopulation.length > 0
+            ? evaluatedPopulation.reduce((max, obj) => obj.score > max ? obj.score : max, evaluatedPopulation[0].score)
+            : 0; // Fallback value if the array is empty
+    }
+    
+    getAverageScore(evaluatedPopulation) {
+        return evaluatedPopulation.length > 0
+            ? evaluatedPopulation.reduce((acc, obj) => acc + obj.score, 0) / evaluatedPopulation.length
+            : 0; // Fallback value if the array is empty
+    }
+    
+
     run(numBest, mutationRate, callback) {
         this.evaluatePopulation(evaluatedPopulation => {
             const bestPopulation = this.selectBest(evaluatedPopulation, numBest);
             this.createNextGeneration(bestPopulation, mutationRate);
-            evaluatedPopulation.forEach((obj, index) => {
-                console.log("Score num " + index + " = " + obj.score);
-            });
+    
+            console.log("Average score: " + this.getAverageScore(evaluatedPopulation), " generation : ", this.generation);
+    
+            // Ensure data is passed as a 2D array
+            this.chart.addRows([[this.generation, this.getBestScore(evaluatedPopulation), this.getAverageScore(evaluatedPopulation)]]);
+            this.generation++;
+    
             callback();
         });
     }
+    
+
 }
 
 export { GeneticAlgorithm };

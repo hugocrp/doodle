@@ -1,3 +1,5 @@
+
+
 class View {
     constructor(canvasId = 'my_canvas', scoreId = 'score') {
         this.canvas = document.getElementById(canvasId);
@@ -84,6 +86,8 @@ class View {
                 player.height
             );
         }
+
+        
 
         this.ctx.restore();
     }

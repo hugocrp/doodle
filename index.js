@@ -77,21 +77,21 @@ function playWithAI() {
     document.getElementById('single-canvas-container').style.display = 'none';
     multiCanvasContainer.style.display = 'flex';
 
-    const geneticAlgorithm = new GeneticAlgorithm(populationSize, inputSize, nbreNeuronnes, outputSize);
-    let generation = 0;
-
-    const runGeneration = () => {
-        if (generation < numGenerations) {
-            geneticAlgorithm.run(numBest, valeurDeMutation, () => {
-                generation++;
-                runGeneration();
-            });
-        } else {
-            console.log("Évolution terminée");
-        }
-    };
-
-    runGeneration();
+    google.charts.load('current', { packages: ['corechart', 'line'] });
+    google.charts.setOnLoadCallback(() => {
+        const geneticAlgorithm = new GeneticAlgorithm(populationSize, inputSize, nbreNeuronnes, outputSize);
+        let generation = 0;
+        const runGeneration = () => {
+            if (generation < numGenerations) {
+                geneticAlgorithm.run(numBest, valeurDeMutation, () => {
+                    geneticAlgorithm.chart.draw();
+                    generation++;
+                    runGeneration();
+                });
+            }
+        };
+        runGeneration();
+    });
 }
 
 document.getElementById('play').addEventListener('click', play);
