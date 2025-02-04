@@ -27,7 +27,7 @@ class GeneticAlgorithm {
     
         this.population.forEach((network, index) => {
             const model = new Model();
-            const view = new View(`my_canvas_${index}`);
+            const view = new View(`my_canvas_${index}`, `score_${index}`);
             const controller = new Controller(model, view);
     
             controller.runGameWithNetwork(network, score => {
@@ -36,9 +36,9 @@ class GeneticAlgorithm {
                 if (completed === this.population.length) {
                     callback(evaluatedPopulation);
                 }
-            });
+            }, index);
         });
-    }s
+    }
 
     selectBest(evaluatedPopulation, numBest) {
         return evaluatedPopulation

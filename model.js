@@ -172,17 +172,21 @@ class Model {
     }
 
     resetGame() {
+        const finalScore = this.score;
         this.player.position = { x: 100, y: 200 };
         this.score = 0;
         this.platforms = this.generatePlatforms();
-        document.getElementById('score').innerText = this.score;
+        return finalScore;
+    }
+
+    getScore() {
+        return this.score;
     }
 
     sliding() {
         if (this.player.position.y < 200) {
             const sliding = 200 - this.player.position.y;
             this.score += Math.ceil(sliding);
-            document.getElementById('score').innerText = this.score;
             this.player.position.y = 200;
             this.platforms.forEach(platform => (platform.position.y += sliding));
         }
