@@ -54,10 +54,32 @@ class Controller {
         this.view.drawVectors(this.model.player, entryVectors);
     }
 
+    // runGameWithNetwork(network, callback) {
+    //     this.model.resetGame();
+    //     this.model.isGameOver = false;
+
+    //     const gameLoop = () => {
+    //         if (!this.model.isGameOver) {
+    //             this.update(60);
+    //             requestAnimationFrame(gameLoop);
+    //             const vectors = this.model.getVectors(this.model.platforms, this.model.player);
+    //             const inputs = this.model.getEntryVectors(vectors).getVectorArray();
+    //             const output = network.prediction(inputs);
+    //             this.model.setDirection(output);
+    //         } else {
+    //             callback(this.model.score);
+    //         }
+    //     };
+
+    //     gameLoop();
+    // }
+
     runGameWithNetwork(network, callback) {
         this.model.resetGame();
         this.model.isGameOver = false;
-
+        let lastScore = this.model.score;
+        let timeSinceLastScoreChange = 0;
+    
         const gameLoop = () => {
             if (!this.model.isGameOver) {
                 this.update(60);
@@ -66,13 +88,25 @@ class Controller {
                 const inputs = this.model.getEntryVectors(vectors).getVectorArray();
                 const output = network.prediction(inputs);
                 this.model.setDirection(output);
+    
+                if (this.model.score === lastScore) {
+                    timeSinceLastScoreChange += 1 / 60; 
+                    if (timeSinceLastScoreChange >= 6) {
+                        this.model.isGameOver = true;
+                    }
+                } else {
+                    lastScore = this.model.score;
+                    timeSinceLastScoreChange = 0;
+                }
             } else {
                 callback(this.model.score);
             }
         };
-
+    
         gameLoop();
     }
 }
+
+
 
 export default Controller;

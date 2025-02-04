@@ -13,7 +13,7 @@ const nbreNeuronnes = 4;
 const outputSize = 3;
 const numBest = 30;
 const valeurDeMutation = 0.1;
-const numGenerations = 1;
+const numGenerations = 100;
 
 function gameLoop() {
     if (!model.isGameOver) {
