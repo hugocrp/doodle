@@ -18,26 +18,6 @@ class Controller {
         this.view.updateScore(this.model.getScore());
     }
 
-    // runGameWithNetwork(network, callback) {
-    //     this.model.resetGame();
-    //     this.model.isGameOver = false;
-
-    //     const gameLoop = () => {
-    //         if (!this.model.isGameOver) {
-    //             this.update(60);
-    //             requestAnimationFrame(gameLoop);
-    //             const vectors = this.model.getVectors(this.model.platforms, this.model.player);
-    //             const inputs = this.model.getEntryVectors(vectors).getVectorArray();
-    //             const output = network.prediction(inputs);
-    //             this.model.setDirection(output);
-    //         } else {
-    //             callback(this.model.score);
-    //         }
-    //     };
-
-    //     gameLoop();
-    // }
-
     runGameWithNetwork(network, callback, canvasIndex) {
         this.model.resetGame();
         this.model.isGameOver = false;
@@ -63,7 +43,8 @@ class Controller {
                     timeSinceLastScoreChange = 0;
                 }
             } else {
-                callback(this.model.score);
+                const finalScore = this.model.resetGame();
+                callback(finalScore);
             }
         };
     

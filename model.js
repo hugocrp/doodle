@@ -172,9 +172,11 @@ class Model {
     }
 
     resetGame() {
+        const finalScore = this.score;
         this.player.position = { x: 100, y: 200 };
         this.score = 0;
         this.platforms = this.generatePlatforms();
+        return finalScore;
     }
 
     getScore() {
