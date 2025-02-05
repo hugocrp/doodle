@@ -33,7 +33,6 @@ export class NeuralNetwork {
         
         let output = this.sommePondereEtBiais(this.weightsHiddenOutput, hiddenAfterRelu, this.biasOutput);
         const outputfinal = this.relu(output);
-        // console.log("Output (after ReLU):", output);
         const maxIndex = outputfinal.indexOf(Math.max(...outputfinal));
 
         // Renvoie -1, 0 ou 1 selon l'index du maximum

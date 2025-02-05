@@ -32,6 +32,7 @@ class Controller {
                 const inputs = this.model.getEntryVectors(vectors).getVectorArray();
                 const output = network.prediction(inputs);
                 this.model.setDirection(output);
+                this.view.setLastDirection(output);
     
                 if (this.model.score === lastScore) {
                     timeSinceLastScoreChange += 1 / 60; 

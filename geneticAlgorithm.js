@@ -81,7 +81,7 @@ class GeneticAlgorithm {
                 }
             }
         }
-
+    
         for (let i = 0; i < network.weightsHiddenOutput.length; i++) {
             for (let j = 0; j < network.weightsHiddenOutput[i].length; j++) {
                 if (Math.random() < mutationRate) {
@@ -89,13 +89,13 @@ class GeneticAlgorithm {
                 }
             }
         }
-
+    
         for (let i = 0; i < network.biasHidden.length; i++) {
             if (Math.random() < mutationRate) {
                 network.biasHidden[i] += (Math.random() * 2 - 1) * 0.1;
             }
         }
-
+    
         for (let i = 0; i < network.biasOutput.length; i++) {
             if (Math.random() < mutationRate) {
                 network.biasOutput[i] += (Math.random() * 2 - 1) * 0.1;
@@ -118,13 +118,13 @@ class GeneticAlgorithm {
     getBestScore(evaluatedPopulation) {
         return evaluatedPopulation.length > 0
             ? evaluatedPopulation.reduce((max, obj) => obj.score > max ? obj.score : max, evaluatedPopulation[0].score)
-            : 0; // Fallback value if the array is empty
+            : 0;
     }
     
     getAverageScore(evaluatedPopulation) {
         return evaluatedPopulation.length > 0
             ? evaluatedPopulation.reduce((acc, obj) => acc + obj.score, 0) / evaluatedPopulation.length
-            : 0; // Fallback value if the array is empty
+            : 0;
     }
     
 
@@ -133,9 +133,8 @@ class GeneticAlgorithm {
             const bestPopulation = this.selectBest(evaluatedPopulation, numBest);
             this.createNextGeneration(bestPopulation, mutationRate);
     
-            console.log("Average score: " + this.getAverageScore(evaluatedPopulation), " generation : ", this.generation);
+            console.log("Moyenne des scores: " + this.getAverageScore(evaluatedPopulation), " generation : ", this.generation);
     
-            // Ensure data is passed as a 2D array
             this.chart.addRows([[this.generation, this.getBestScore(evaluatedPopulation), this.getAverageScore(evaluatedPopulation)]]);
             this.generation++;
     

@@ -12,8 +12,9 @@ const inputSize = 6;
 const nbreNeuronnes = 6;
 const outputSize = 3;
 const numBest = 30;
-const valeurDeMutation = 0.1;
-const numGenerations = 100;
+const valeurDeMutation = 0.2;
+const numGenerations = 1000;
+let bestNetwork = null;
 
 function gameLoop() {
     if (!model.isGameOver) {
@@ -29,24 +30,6 @@ function play() {
     model.isGameOver = false;
     gameLoop();
 }
-
-// function playWithAI() {
-//     document.getElementById('single-canvas-container').style.display = 'none';
-//     document.getElementById('multi-canvas-container').style.display = 'flex';
-//     const geneticAlgorithm = new GeneticAlgorithm(populationSize, inputSize, nbreNeuronnes, outputSize);
-//     let generation = 0;
-
-//     const runGeneration = () => {
-//         if (generation < numGenerations) {
-//             geneticAlgorithm.run(numBest, valeurDeMutation, () => {
-//                 generation++;
-//                 runGeneration();
-//             });
-//         }
-//     };
-
-//     runGeneration();
-// }
 
 function playWithAI() {
     const multiCanvasContainer = document.getElementById('multi-canvas-container');
@@ -88,13 +71,39 @@ function playWithAI() {
                     generation++;
                     runGeneration();
                 });
+            } else {
+                bestNetwork = geneticAlgorithm.selectBest(geneticAlgorithm.population, 1)[0];
             }
         };
         runGeneration();
     });
 }
 
+function playWithBestAI() {
+    if (!bestNetwork) {
+        alert('No trained AI available. Please train the AI first.');
+        return;
+    }
+
+    document.getElementById('single-canvas-container').style.display = 'flex';
+    document.getElementById('multi-canvas-container').style.display = 'none';
+    model.resetGame();
+    model.isGameOver = false;
+
+    const gameLoop = () => {
+        if (!model.isGameOver) {
+            controller.update(60);
+            requestAnimationFrame(gameLoop);
+            const vectors = model.getVectors(model.platforms, model.player);
+            const inputs = model.getEntryVectors(vectors).getVectorArray();
+            const output = bestNetwork.prediction(inputs);
+            model.setDirection(output);
+        }
+    };
+
+    gameLoop();
+}
+
 document.getElementById('play').addEventListener('click', play);
 document.getElementById('play-ia').addEventListener('click', playWithAI);
-
-
+document.getElementById('play-best-ia').addEventListener('click', playWithBestAI);

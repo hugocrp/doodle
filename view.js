@@ -26,6 +26,9 @@ class View {
     bindSetDirection(callback) {
         this.setDirectionCallback = callback;
     }
+    setLastDirection(direction) {
+        this._lastDirection = direction;
+    }
     updateScore(score) {
         this.scoreElement.innerText = score;
     }
