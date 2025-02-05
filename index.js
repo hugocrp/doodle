@@ -79,31 +79,5 @@ function playWithAI() {
     });
 }
 
-function playWithBestAI() {
-    if (!bestNetwork) {
-        alert('No trained AI available. Please train the AI first.');
-        return;
-    }
-
-    document.getElementById('single-canvas-container').style.display = 'flex';
-    document.getElementById('multi-canvas-container').style.display = 'none';
-    model.resetGame();
-    model.isGameOver = false;
-
-    const gameLoop = () => {
-        if (!model.isGameOver) {
-            controller.update(60);
-            requestAnimationFrame(gameLoop);
-            const vectors = model.getVectors(model.platforms, model.player);
-            const inputs = model.getEntryVectors(vectors).getVectorArray();
-            const output = bestNetwork.prediction(inputs);
-            model.setDirection(output);
-        }
-    };
-
-    gameLoop();
-}
-
 document.getElementById('play').addEventListener('click', play);
 document.getElementById('play-ia').addEventListener('click', playWithAI);
-// document.getElementById('play-best-ia').addEventListener('click', playWithBestAI);
