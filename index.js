@@ -9,7 +9,7 @@ const controller = new Controller(model, view);
 
 const populationSize = 100;
 const inputSize = 6;
-const nbreNeuronnes = 6;
+const nbreNeuronnes = 4;
 const outputSize = 3;
 const numBest = 30;
 const valeurDeMutation = 0.2;
@@ -106,4 +106,4 @@ function playWithBestAI() {
 
 document.getElementById('play').addEventListener('click', play);
 document.getElementById('play-ia').addEventListener('click', playWithAI);
-document.getElementById('play-best-ia').addEventListener('click', playWithBestAI);
+// document.getElementById('play-best-ia').addEventListener('click', playWithBestAI);
