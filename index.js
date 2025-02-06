@@ -37,6 +37,7 @@ function gameLoop() {
 function play() {
     document.getElementById('single-canvas-container').style.display = 'flex';
     document.getElementById('multi-canvas-container').style.display = 'none';
+    document.getElementById('chart_div').style.display = 'none';
     model.resetGame(); // Réinitialisation du modèle
     model.isGameOver = false; // Démarrage du jeu
     gameLoop(); // Démarrage de la boucle de jeu
@@ -76,6 +77,7 @@ function playWithAI() {
 
     // Affichage du conteneur multi-canvas et masquage du conteneur solo
     document.getElementById('single-canvas-container').style.display = 'none';
+    document.getElementById('chart_div').style.display = 'flex';
     multiCanvasContainer.style.display = 'flex';
 
     // Chargement de Google Charts et initialisation de l'algorithme génétique

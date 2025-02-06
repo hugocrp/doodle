@@ -169,7 +169,6 @@ class GeneticAlgorithm {
         this.evaluatePopulation(evaluatedPopulation => {
             const bestPopulation = this.selectBest(evaluatedPopulation, numBest);
             this.createNextGeneration(bestPopulation, mutationRate);
-
             console.log("Moyenne des scores: " + this.getAverageScore(evaluatedPopulation), "Génération : ", this.generation);
 
             this.chart.addRows([[this.generation, this.getBestScore(evaluatedPopulation), this.getAverageScore(evaluatedPopulation)]]);
